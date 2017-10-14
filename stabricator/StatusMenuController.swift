@@ -8,16 +8,18 @@
 
 import Cocoa
 
-class StatusMenuController: NSObject {
+class StatusMenuController: NSObject, NSWindowDelegate {
     let INSERTION_INDEX = 2
 
     @IBOutlet weak var statusMenu: NSMenu!
 
+    let loginWindowController = LoginWindowController(windowNibName: NSNib.Name(rawValue: "LoginWindow"))
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
-    let defaults: Defaults
-    let phab: Phabricator
-    var user: User? = nil
+    let defaults = Defaults()
+    var phab: Phabricator? = nil
+    var userPhid: String? = nil
+    var userImage: String? = nil
     var diffs: [Diff]? = nil
 
     @IBAction func refreshClicked(_ sender: Any) {
@@ -29,61 +31,73 @@ class StatusMenuController: NSObject {
     }
 
     override init() {
-        self.defaults = Defaults()
-
-        // TODO: prompt user for url and api token if not set
-        let phabUrl = defaults.phabricatorUrl ?? Constants.PHABRICATOR_URL
-        let apiToken = defaults.apiToken ?? Constants.API_TOKEN
-        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken)
-        
         super.init()
+
+        if (defaults.hasApiToken()) {
+            initPhabricator()
+        } else {
+            // show login window
+            loginWindowController.window?.center()
+            loginWindowController.window?.delegate = self
+            loginWindowController.showWindow(self)
+        }
+    }
+    
+    func windowWillClose(_ notification: Notification) {
+        // login window closing, re-initialize Phabricator with new values
+        print("Login closed from status listener")
+        initPhabricator()
+    }
+    
+    private func initPhabricator() {
+        self.userPhid = defaults.userPhid!
+        self.userImage = defaults.userImage!
+
+        let phabUrl = defaults.phabricatorUrl!
+        let apiToken = defaults.apiToken!
+        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken)
+
+        refreshDiffs()
     }
 
     override func awakeFromNib() {
-        let icon = NSImage(named: NSImage.Name(rawValue: "knife"))
-        icon?.isTemplate = true
+        let icon = NSImage(named: NSImage.Name(rawValue: "knife"))!
+        icon.isTemplate = true
         statusItem.image = icon
         statusItem.menu = statusMenu
         
-        ensureUser()
         refreshDiffs()
-    }
-    
-    private func ensureUser() {
-        phab.fetchUser() { response in
-            self.user = response.result
-            self.refreshUi(user: self.user, diffs: self.diffs ?? [])
-        }
     }
 
     private func refreshDiffs() {
-        phab.fetchActiveDiffs() { response in
-            self.diffs = response.result.data
-            self.refreshUi(user: self.user, diffs: response.result.data)
-
-            // TODO: have time be configurable
-            let seconds = self.defaults.refreshInterval ?? 60
-            let deadlineTime = DispatchTime.now() + .seconds(seconds)
-            DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
-                self.refreshDiffs()
+        if let phab = self.phab {
+            phab.fetchActiveDiffs() { response in
+                self.diffs = response.result.data
+                self.refreshUi(diffs: response.result.data)
+                
+                // TODO: have time be configurable
+                let seconds = self.defaults.refreshInterval ?? 60
+                let deadlineTime = DispatchTime.now() + .seconds(seconds)
+                DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
+                    self.refreshDiffs()
+                }
             }
         }
     }
 
-    private func refreshUi(user: User?, diffs: [Diff]) {
+    private func refreshUi(diffs: [Diff]) {
         // update title on main thread
         DispatchQueue.main.async(execute: {
             self.statusItem.title = "\(diffs.count)"
         })
         
-        print("Fetched \(diffs.count) active diffs for \(user?.realName ?? "unknown")")
+        print("Fetched \(diffs.count) active diffs")
         
         // clear out last update's menu items
         while (statusMenu.items.count > INSERTION_INDEX + 1) {
             statusMenu.removeItem(at: INSERTION_INDEX)
         }
-        
-        
+
         // assemble by status
         var categories = [String: [Diff]]()
         for diff in diffs {
@@ -104,6 +118,13 @@ class StatusMenuController: NSObject {
                 let row = NSMenuItem(title: diff.fields.title, action: #selector(launchUrl), keyEquivalent: "")
                 row.target = self
                 row.representedObject = diff
+                
+                if (diff.fields.authorPHID == userPhid) {
+                    if let imageUrl = self.userImage {
+                        row.image = NSImage(byReferencing: URL(string: imageUrl)!)
+                    }
+                }
+
                 insertMenuItem(menuItem: row)
             }
             insertMenuItem(menuItem: NSMenuItem.separator())

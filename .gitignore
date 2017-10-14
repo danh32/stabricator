@@ -28,5 +28,3 @@ xcuserdata/
 *.dSYM.zip
 *.dSYM
 
-## Hide credentials
-Constants.swift
