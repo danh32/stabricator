@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+            <connections>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="weatherbar" customModuleProvider="target"/>
+        <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
+        <customObject id="xR9-TD-kvA" customClass="StatusMenuController" customModule="weatherbar" customModuleProvider="target">
+            <connections>
+                <outlet property="statusMenu" destination="8of-FL-hMO" id="iCI-1G-NPY"/>
+            </connections>
+        </customObject>
+        <menu id="8of-FL-hMO">
+            <items>
+                <menuItem title="Check now" id="Zxh-Jn-P1c">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="refreshClicked:" target="xR9-TD-kvA" id="quB-tj-gDy"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="8qF-hY-Xa4"/>
+                <menuItem title="Quit" id="cQm-k2-wY8" userLabel="Quit">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="quitClicked:" target="xR9-TD-kvA" id="e6j-8m-DE2"/>
+                    </connections>
+                </menuItem>
+            </items>
+        </menu>
+    </objects>
+</document>
