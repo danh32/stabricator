@@ -10,23 +10,38 @@ import Foundation
 
 class Phabricator {
 
-    let API_PATH = "/api/differential.revision.search"
     let PHABRICATOR_URL: String
-    let REQUEST_BODY: String
-    
+    let API_TOKEN: String
+    let PATH_DIFFS_SEARCH = "/api/differential.revision.search"
+    let PATH_USER_SELF = "/api/user.whoami"
+    let PATH_USER_SEARCH = "/api/user.search"
+
     init(phabricatorUrl: String, apiToken: String) {
-        self.PHABRICATOR_URL = "\(phabricatorUrl)/\(API_PATH)"
-        self.REQUEST_BODY = "api.token=\(apiToken)&queryKey=active"
+        self.PHABRICATOR_URL = phabricatorUrl
+        self.API_TOKEN = apiToken
+    }
+
+    func fetchUser(success: @escaping (Response<User>) -> Void) {
+        var request = getRequest(url: "\(PHABRICATOR_URL)/\(PATH_USER_SELF)")
+        request.httpBody = "api.token=\(API_TOKEN)".data(using: .utf8)
+        execute(request: request, type: Response<User>.self, success: success)
     }
     
-    func fetchActiveDiffs(success: @escaping (Response) -> Void) {
-        let url = URL(string: PHABRICATOR_URL)
-        var request = URLRequest(url: url!)
+    func fetchActiveDiffs(success: @escaping (DiffArrayResponse) -> Void) {
+        var request = getRequest(url: "\(PHABRICATOR_URL)/\(PATH_DIFFS_SEARCH)")
+        request.httpBody = "api.token=\(API_TOKEN)&queryKey=active".data(using: .utf8)
+        execute(request: request, type: DiffArrayResponse.self, success: success)
+    }
+    
+    func getRequest(url: String) -> URLRequest {
+        var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = "POST"
         request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.httpBody = REQUEST_BODY.data(using: .utf8)
-
+        return request
+    }
+    
+    func execute<T: Decodable>(request: URLRequest, type: T.Type, success: @escaping (T) -> Void) {
         let task = URLSession.shared.dataTask(with: request) { data, response, err in
             // first check for a hard error
             if let error = err {
@@ -36,14 +51,14 @@ class Phabricator {
             // then check the response code
             if let httpResponse = response as? HTTPURLResponse {
                 switch httpResponse.statusCode {
+
                 case 200: // all good!
                     if let dataString = String(data: data!, encoding: .utf8) {
-                        if let response = self.parseJsonResponse(jsonString: dataString) {
+                        if let response = self.parseJsonResponse(jsonString: dataString, type: type) {
                             success(response)
                         }
                     }
-                case 401: // unauthorized
-                    print("Phabricator returned an 'unauthorized' response. Did you set your API key?")
+
                 default:
                     print("Phabricator api returned response: %d %@", httpResponse.statusCode, HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode))
                 }
@@ -52,47 +67,9 @@ class Phabricator {
         task.resume()
     }
     
-    func parseJsonResponse(jsonString: String) -> Response? {
+    func parseJsonResponse<T: Decodable>(jsonString: String, type: T.Type) -> T? {
         let jsonData = jsonString.data(using: .utf8)!
         let decoder = JSONDecoder()
-        return try! decoder.decode(Response.self, from: jsonData)
+        return try! decoder.decode(type, from: jsonData)
     }
-}
-
-struct Response : Codable {
-    let result: Result
-    let error_code: String?
-    let error_info: String?
-}
-
-struct Result : Codable {
-    let data: [Diff]
-}
-
-struct Diff : Codable {
-    let id: Int
-    let type: Type
-    let phid: String
-    let fields: Fields
-}
-
-enum Type : String, Codable {
-    case DREV
-    // others??
-}
-
-struct Fields : Codable {
-    let title: String
-    let authorPHID: String
-    let status: Status
-    let dateCreated: Date
-    let dateModified: Date
-}
-
-struct Status : Codable {
-    let value: String
-    let name: String
-    let closed: Bool
-    // TODO: use codingkeys later
-    //    let color.ansi: String
 }

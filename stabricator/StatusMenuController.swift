@@ -17,9 +17,11 @@ class StatusMenuController: NSObject {
 
     // TODO: get url and token from somewhere else
     let phab = Phabricator(phabricatorUrl: Constants.PHABRICATOR_URL, apiToken: Constants.API_TOKEN)
-    
+    var user: User? = nil
+    var diffs: [Diff]? = nil
+
     @IBAction func refreshClicked(_ sender: Any) {
-        refresh()
+        refreshDiffs()
     }
 
     @IBAction func quitClicked(_ sender: Any) {
@@ -32,29 +34,39 @@ class StatusMenuController: NSObject {
         statusItem.image = icon
         statusItem.menu = statusMenu
         
-        refresh()
+        statusMenu.items[0].image = NSImage(named: .refreshTemplate)
+        
+        ensureUser()
+        refreshDiffs()
     }
     
-    private func refresh() {
+    private func ensureUser() {
+        phab.fetchUser() { response in
+            self.user = response.result
+            self.refreshUi(user: self.user, diffs: self.diffs ?? [])
+        }
+    }
+
+    private func refreshDiffs() {
         phab.fetchActiveDiffs() { response in
-            self.onDiffsRefreshed(response: response)
+            self.diffs = response.result.data
+            self.refreshUi(user: self.user, diffs: response.result.data)
             
             // TODO: have time be configurable
             let deadlineTime = DispatchTime.now() + .seconds(60)
             DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
-                self.refresh()
+                self.refreshDiffs()
             }
         }
     }
 
-    private func onDiffsRefreshed(response: Response) {
+    private func refreshUi(user: User?, diffs: [Diff]) {
         // update title on main thread
         DispatchQueue.main.async(execute: {
-            self.statusItem.title = "\(response.result.data.count)"
+            self.statusItem.title = "\(diffs.count)"
         })
         
-        
-        print("Fetched \(response.result.data.count) active diffs")
+        print("Fetched \(diffs.count) active diffs")
         
         // clear out last update's menu items
         while (statusMenu.items.count > INSERTION_INDEX + 1) {
@@ -64,7 +76,7 @@ class StatusMenuController: NSObject {
         
         // assemble by status
         var categories = [String: [Diff]]()
-        for diff in response.result.data {
+        for diff in diffs {
             let status = diff.fields.status.value
             if categories[status] == nil {
                 categories[status] = [Diff]()
