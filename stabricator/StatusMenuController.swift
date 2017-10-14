@@ -44,8 +44,7 @@ class StatusMenuController: NSObject, NSWindowDelegate {
     }
     
     func windowWillClose(_ notification: Notification) {
-        // login window closing, re-initialize Phabricator with new values
-        print("Login closed from status listener")
+        // login window closing, initialize Phabricator with new values
         initPhabricator()
     }
     

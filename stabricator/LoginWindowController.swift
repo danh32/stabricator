@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class LoginWindowController: NSWindowController {
+class LoginWindowController: NSWindowController, NSTextFieldDelegate {
 
     @IBOutlet weak var urlTextField: NSTextField!
     @IBOutlet weak var apiTokenTextField: NSTextField!
@@ -17,7 +17,6 @@ class LoginWindowController: NSWindowController {
 
     override func windowDidLoad() {
         super.windowDidLoad()
-        print("LoginWindow did load")
     }
     
     @IBAction func onOkClicked(_ sender: Any) {

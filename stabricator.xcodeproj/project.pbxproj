@@ -11,6 +11,7 @@
 		3708D52C1F92B05C00E06D95 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3708D52B1F92B05C00E06D95 /* Defaults.swift */; };
 		3708D52F1F92B6B700E06D95 /* LoginWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3708D52D1F92B6B700E06D95 /* LoginWindowController.swift */; };
 		3708D5301F92B6B700E06D95 /* LoginWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3708D52E1F92B6B700E06D95 /* LoginWindow.xib */; };
+		3708D5321F92D8D300E06D95 /* EditableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3708D5311F92D8D300E06D95 /* EditableTextField.swift */; };
 		37CCEE811F8DA4D700F584ED /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CCEE801F8DA4D700F584ED /* AppDelegate.swift */; };
 		37CCEE831F8DA4D700F584ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 37CCEE821F8DA4D700F584ED /* Assets.xcassets */; };
 		37CCEE861F8DA4D700F584ED /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37CCEE841F8DA4D700F584ED /* MainMenu.xib */; };
@@ -23,6 +24,7 @@
 		3708D52B1F92B05C00E06D95 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		3708D52D1F92B6B700E06D95 /* LoginWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWindowController.swift; sourceTree = "<group>"; };
 		3708D52E1F92B6B700E06D95 /* LoginWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginWindow.xib; sourceTree = "<group>"; };
+		3708D5311F92D8D300E06D95 /* EditableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableTextField.swift; sourceTree = "<group>"; };
 		37CCEE7D1F8DA4D700F584ED /* stabricator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = stabricator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		37CCEE801F8DA4D700F584ED /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		37CCEE821F8DA4D700F584ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				3708D52B1F92B05C00E06D95 /* Defaults.swift */,
 				3708D52D1F92B6B700E06D95 /* LoginWindowController.swift */,
 				3708D52E1F92B6B700E06D95 /* LoginWindow.xib */,
+				3708D5311F92D8D300E06D95 /* EditableTextField.swift */,
 			);
 			path = stabricator;
 			sourceTree = "<group>";
@@ -159,6 +162,7 @@
 				37CCEE8F1F8DBA1000F584ED /* StatusMenuController.swift in Sources */,
 				37CCEE811F8DA4D700F584ED /* AppDelegate.swift in Sources */,
 				3708D52C1F92B05C00E06D95 /* Defaults.swift in Sources */,
+				3708D5321F92D8D300E06D95 /* EditableTextField.swift in Sources */,
 				3708D52A1F928BA100E06D95 /* Models.swift in Sources */,
 				3708D52F1F92B6B700E06D95 /* LoginWindowController.swift in Sources */,
 			);
