@@ -15,8 +15,8 @@ class StatusMenuController: NSObject {
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
-    // TODO: get url and token from somewhere else
-    let phab = Phabricator(phabricatorUrl: Constants.PHABRICATOR_URL, apiToken: Constants.API_TOKEN)
+    let defaults: Defaults
+    let phab: Phabricator
     var user: User? = nil
     var diffs: [Diff]? = nil
 
@@ -27,14 +27,23 @@ class StatusMenuController: NSObject {
     @IBAction func quitClicked(_ sender: Any) {
         NSApplication.shared.terminate(self)
     }
-    
+
+    override init() {
+        self.defaults = Defaults()
+
+        // TODO: prompt user for url and api token if not set
+        let phabUrl = defaults.phabricatorUrl ?? Constants.PHABRICATOR_URL
+        let apiToken = defaults.apiToken ?? Constants.API_TOKEN
+        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken)
+        
+        super.init()
+    }
+
     override func awakeFromNib() {
         let icon = NSImage(named: NSImage.Name(rawValue: "knife"))
         icon?.isTemplate = true
         statusItem.image = icon
         statusItem.menu = statusMenu
-        
-        statusMenu.items[0].image = NSImage(named: .refreshTemplate)
         
         ensureUser()
         refreshDiffs()
@@ -51,9 +60,10 @@ class StatusMenuController: NSObject {
         phab.fetchActiveDiffs() { response in
             self.diffs = response.result.data
             self.refreshUi(user: self.user, diffs: response.result.data)
-            
+
             // TODO: have time be configurable
-            let deadlineTime = DispatchTime.now() + .seconds(60)
+            let seconds = self.defaults.refreshInterval ?? 60
+            let deadlineTime = DispatchTime.now() + .seconds(seconds)
             DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
                 self.refreshDiffs()
             }
@@ -66,7 +76,7 @@ class StatusMenuController: NSObject {
             self.statusItem.title = "\(diffs.count)"
         })
         
-        print("Fetched \(diffs.count) active diffs")
+        print("Fetched \(diffs.count) active diffs for \(user?.realName ?? "unknown")")
         
         // clear out last update's menu items
         while (statusMenu.items.count > INSERTION_INDEX + 1) {
