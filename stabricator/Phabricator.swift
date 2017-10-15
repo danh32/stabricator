@@ -12,9 +12,8 @@ class Phabricator {
 
     let PHABRICATOR_URL: String
     let API_TOKEN: String
-    let PATH_DIFFS_SEARCH = "/api/differential.revision.search"
-    let PATH_USER_SELF = "/api/user.whoami"
-    let PATH_USER_SEARCH = "/api/user.search"
+    let PATH_DIFFS_SEARCH = "differential.revision.search"
+    let PATH_USER_SELF = "user.whoami"
 
     init(phabricatorUrl: String, apiToken: String) {
         self.PHABRICATOR_URL = phabricatorUrl
@@ -22,13 +21,13 @@ class Phabricator {
     }
 
     func fetchUser(success: @escaping (Response<User>) -> Void) {
-        var request = getRequest(url: "\(PHABRICATOR_URL)/\(PATH_USER_SELF)")
+        var request = getRequest(url: PHABRICATOR_URL + PATH_USER_SELF)
         request.httpBody = "api.token=\(API_TOKEN)".data(using: .utf8)
         execute(request: request, type: Response<User>.self, success: success)
     }
-    
+
     func fetchActiveDiffs(success: @escaping (DiffArrayResponse) -> Void) {
-        var request = getRequest(url: "\(PHABRICATOR_URL)/\(PATH_DIFFS_SEARCH)")
+        var request = getRequest(url: PHABRICATOR_URL + PATH_DIFFS_SEARCH)
         request.httpBody = "api.token=\(API_TOKEN)&queryKey=active".data(using: .utf8)
         execute(request: request, type: DiffArrayResponse.self, success: success)
     }
