@@ -97,22 +97,19 @@ class StatusMenuController: NSObject, NSWindowDelegate {
             statusMenu.removeItem(at: INSERTION_INDEX)
         }
 
-        // assemble by status
-        var categories = [String: [Diff]]()
-        for diff in diffs {
-            let status = diff.fields.status.value
-            if categories[status] == nil {
-                categories[status] = [Diff]()
-            }
-            categories[status]?.append(diff)
-        }
-        
-        // insert new ones
-        for (_, diffs) in categories {
-            let title = diffs[0].fields.status.name
-            let header = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        // sort by category
+        let sortedDiffs = sortDiffs(userPhid: userPhid!, diffs: diffs)
+        for category in categories {
+            let diffs = sortedDiffs[category]!
+            let header = NSMenuItem(title: category.title, action: nil, keyEquivalent: "")
             insertMenuItem(menuItem: header)
-
+            
+            if (diffs.isEmpty) {
+                let empty = NSMenuItem(title: category.emptyMessage, action: nil, keyEquivalent: "")
+                empty.indentationLevel = 1
+                insertMenuItem(menuItem: empty)
+            }
+            
             for diff in diffs {
                 let row = NSMenuItem(title: diff.fields.title, action: #selector(launchUrl), keyEquivalent: "")
                 row.target = self
@@ -120,12 +117,17 @@ class StatusMenuController: NSObject, NSWindowDelegate {
                 
                 if (diff.fields.authorPHID == userPhid) {
                     if let imageUrl = self.userImage {
-                        row.image = NSImage(byReferencing: URL(string: imageUrl)!)
+                        let avatar = NSImage(byReferencing: URL(string: imageUrl)!)
+                        // TODO: don't hardcode, get the height of the item
+                        let height = 18
+                        avatar.size = NSSize(width: height, height: height)
+                        row.image = avatar
                     }
                 }
-
+                
                 insertMenuItem(menuItem: row)
             }
+            
             insertMenuItem(menuItem: NSMenuItem.separator())
         }
     }

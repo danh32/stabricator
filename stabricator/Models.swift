@@ -11,7 +11,7 @@ import Foundation
 typealias DiffArrayResponse = Response<ListResult<Diff>>
 
 struct Response<T: Codable> : Codable {
-let result: T
+    let result: T
     let error_code: String?
     let error_info: String?
 }
@@ -22,14 +22,8 @@ struct ListResult<T: Codable> : Codable {
 
 struct Diff : Codable {
     let id: Int
-    let type: Type
     let phid: String
     let fields: Fields
-}
-
-enum Type : String, Codable {
-    case DREV
-    // others??
 }
 
 struct Fields : Codable {
@@ -41,6 +35,10 @@ struct Fields : Codable {
 }
 
 struct Status : Codable {
+    static let NEEDS_REVIEW = "needs-review"
+    static let NEEDS_REVISION = "needs-revision"
+    static let ACCEPTED = "accepted"
+    
     let value: String
     let name: String
     let closed: Bool
