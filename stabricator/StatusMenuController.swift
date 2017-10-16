@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class StatusMenuController: NSObject, NSWindowDelegate {
+class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenterDelegate {
     let INSERTION_INDEX = 2
 
     @IBOutlet weak var statusMenu: NSMenu!
@@ -21,6 +21,7 @@ class StatusMenuController: NSObject, NSWindowDelegate {
     var userPhid: String? = nil
     var userImage: String? = nil
     var diffs: [Diff]? = nil
+    var knownDiffIds: Set<String> = []
 
     @IBAction func refreshClicked(_ sender: Any) {
         refreshDiffs()
@@ -32,6 +33,8 @@ class StatusMenuController: NSObject, NSWindowDelegate {
 
     override init() {
         super.init()
+
+        NSUserNotificationCenter.default.delegate = self
 
         if (defaults.hasApiToken()) {
             initPhabricator()
@@ -97,7 +100,7 @@ class StatusMenuController: NSObject, NSWindowDelegate {
             statusMenu.removeItem(at: INSERTION_INDEX)
         }
 
-        // sort by category
+        var newDiffs: [Diff] = []
         let sortedDiffs = sortDiffs(userPhid: userPhid!, diffs: diffs)
         for category in categories {
             let diffs = sortedDiffs[category]!
@@ -109,8 +112,13 @@ class StatusMenuController: NSObject, NSWindowDelegate {
                 empty.indentationLevel = 1
                 insertMenuItem(menuItem: empty)
             }
-            
+
             for diff in diffs {
+                // add to new diffs if we haven't seen it yet
+                if !knownDiffIds.contains(diff.phid) {
+                    newDiffs.append(diff)
+                }
+
                 let row = NSMenuItem(title: diff.fields.title, action: #selector(launchUrl), keyEquivalent: "")
                 row.target = self
                 row.representedObject = diff
@@ -130,6 +138,17 @@ class StatusMenuController: NSObject, NSWindowDelegate {
             
             insertMenuItem(menuItem: NSMenuItem.separator())
         }
+
+
+        if (!newDiffs.isEmpty) {
+            // notify!
+            showNotification(diffs: newDiffs)
+        }
+
+        knownDiffIds.removeAll()
+        for diff in diffs {
+            knownDiffIds.insert(diff.phid)
+        }
     }
     
     @objc private func launchUrl(_ menuItem: NSMenuItem) {
@@ -141,5 +160,33 @@ class StatusMenuController: NSObject, NSWindowDelegate {
     
     private func insertMenuItem(menuItem: NSMenuItem) {
         statusMenu.insertItem(menuItem, at: statusMenu.items.count - 1)
+    }
+
+    private func showNotification(diffs: [Diff]) -> Void {
+        if (diffs.isEmpty) {
+            return
+        }
+
+        for diff in diffs {
+            let notification = NSUserNotification()
+            notification.title = diff.fields.title
+            notification.subtitle = diff.fields.status.name
+            notification.identifier = "\(diff.id)"
+            notification.soundName = NSUserNotificationDefaultSoundName
+            NSUserNotificationCenter.default.deliver(notification)
+        }
+    }
+
+    func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
+        // TODO: make configurable
+        return true
+    }
+    
+    func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
+        let id = notification.identifier!
+        let urlString = "https://phabricator.robinhood.com/D\(id)"
+        let url = URL(string: urlString)
+        NSWorkspace.shared.open(url!)
+        NSUserNotificationCenter.default.removeDeliveredNotification(notification)
     }
 }
