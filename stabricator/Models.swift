@@ -24,6 +24,29 @@ struct Diff : Codable {
     let id: Int
     let phid: String
     let fields: Fields
+    let attachments: Attachments?
+    
+    func isStatus(status: String) -> Bool {
+        return fields.status.value == status
+    }
+    
+    func isAuthoredBy(userPhid: String) -> Bool {
+        return fields.authorPHID == userPhid
+    }
+    
+    func isBlockingReviewer(userPhid: String) -> Bool {
+        let reviewer = attachments?.reviewers?.reviewers.first() { reviewer in
+            reviewer.reviewerPHID == userPhid
+        }
+        return reviewer?.isBlocking ?? false
+    }
+    
+    func isAcceptedBy(userPhid: String) -> Bool {
+        let reviewer = attachments?.reviewers?.reviewers.first() { reviewer in
+            reviewer.reviewerPHID == userPhid
+        }
+        return reviewer?.status == "accepted"
+    }
 }
 
 struct Fields : Codable {
@@ -44,8 +67,22 @@ struct Status : Codable {
     let value: String
     let name: String
     let closed: Bool
-    // TODO: use codingkeys later
-    //    let color.ansi: String
+}
+
+struct Attachments : Codable {
+    let reviewers: Reviewers?
+}
+
+struct Reviewers : Codable {
+    let reviewers: [Reviewer]
+}
+
+struct Reviewer : Codable {
+    let reviewerPHID: String
+    // added, accepted, or rejected
+    let status: String
+    let isBlocking: Bool
+    let actorPHID: String?
 }
 
 struct User: Codable {
