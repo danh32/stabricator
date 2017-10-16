@@ -101,6 +101,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
         }
 
         var newDiffs: [Diff] = []
+        var newKnownDiffIds: Set<String> = []
         let sortedDiffs = sortDiffs(userPhid: userPhid!, diffs: diffs)
         for category in categories {
             let diffs = sortedDiffs[category]!
@@ -114,6 +115,9 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             }
 
             for diff in diffs {
+                // always add to knew known diffs
+                newKnownDiffIds.insert(diff.phid)
+
                 // add to new diffs if we haven't seen it yet
                 if !knownDiffIds.contains(diff.phid) {
                     newDiffs.append(diff)
@@ -122,33 +126,19 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
                 let row = NSMenuItem(title: diff.fields.title, action: #selector(launchUrl), keyEquivalent: "")
                 row.target = self
                 row.representedObject = diff
-                
-                if (diff.fields.authorPHID == userPhid) {
-                    if let imageUrl = self.userImage {
-                        let avatar = NSImage(byReferencing: URL(string: imageUrl)!)
-                        // TODO: don't hardcode, get the height of the item
-                        let height = 18
-                        avatar.size = NSSize(width: height, height: height)
-                        row.image = avatar
-                    }
-                }
-                
+                row.image = NSImage(named: NSImage.Name(rawValue: diff.fields.status.value))
+
                 insertMenuItem(menuItem: row)
             }
             
             insertMenuItem(menuItem: NSMenuItem.separator())
         }
 
+        // notify!
+        showNotification(diffs: newDiffs)
 
-        if (!newDiffs.isEmpty) {
-            // notify!
-            showNotification(diffs: newDiffs)
-        }
-
-        knownDiffIds.removeAll()
-        for diff in diffs {
-            knownDiffIds.insert(diff.phid)
-        }
+        // setup known diffs for next iteration
+        self.knownDiffIds = newKnownDiffIds
     }
     
     @objc private func launchUrl(_ menuItem: NSMenuItem) {

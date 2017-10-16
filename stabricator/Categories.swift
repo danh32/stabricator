@@ -27,8 +27,8 @@ struct Category : Hashable {
 
 let categories: [Category] = [
 
-    // TODO: figure out this condition
-    Category(title: "Must Review", emptyMessage: "No revisions are blocked on your review.") { _, _ in false },
+    // TODO: figure out this condition - I don't think we have enough info with the single query
+//    Category(title: "Must Review", emptyMessage: "No revisions are blocked on your review.") { _, _ in false },
     
     // TODO: get empty message
     Category(title: "Ready to Review", emptyMessage: "No revisions are ready to review.") { userPhid, diff in
@@ -42,12 +42,14 @@ let categories: [Category] = [
     },
     
     Category(title: "Ready to Update", emptyMessage: "None of your revisions are ready to update.") { userPhid, diff in
-        diff.fields.status.value == Status.NEEDS_REVISION &&
+        (diff.fields.status.value == Status.NEEDS_REVISION ||
+            diff.fields.status.value == Status.CHANGES_PLANNED) &&
             diff.fields.authorPHID == userPhid
     },
 
-    // TODO: figure out this condition
-    Category(title: "Drafts", emptyMessage: "You have no draft revisions.") { _, _ in false },
+    Category(title: "Drafts", emptyMessage: "You have no draft revisions.") { _, diff in
+        diff.fields.status.value == Status.DRAFT
+    },
     
     Category(title: "Waiting on Review", emptyMessage: "None of your revisions are waiting on review.") { userPhid, diff in
         diff.fields.status.value == Status.NEEDS_REVIEW &&
@@ -59,9 +61,9 @@ let categories: [Category] = [
             diff.fields.status.value == Status.NEEDS_REVISION) &&
             diff.fields.authorPHID != userPhid
     },
-    
-    // TODO: figure out this condition
-    Category(title: "Waiting on Other Reviewers", emptyMessage: "No revisions are waiting on other reviewers.") { _, _ in false },
+
+    // TODO: figure out this condition - I don't think we have enough info with the single query
+//    Category(title: "Waiting on Other Reviewers", emptyMessage: "No revisions are waiting on other reviewers.") { _, _ in false },
 ]
 
 func sortDiffs(userPhid: String, diffs: [Diff]) -> Dictionary<Category, [Diff]> {

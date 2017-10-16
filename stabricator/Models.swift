@@ -38,6 +38,8 @@ struct Status : Codable {
     static let NEEDS_REVIEW = "needs-review"
     static let NEEDS_REVISION = "needs-revision"
     static let ACCEPTED = "accepted"
+    static let CHANGES_PLANNED = "changes-planned"
+    static let DRAFT = "draft"
     
     let value: String
     let name: String
