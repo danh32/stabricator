@@ -14,10 +14,12 @@ class Phabricator {
     let API_TOKEN: String
     let PATH_DIFFS_SEARCH = "differential.revision.search"
     let PATH_USER_SELF = "user.whoami"
+    let errorHandler: (Error) -> Void
 
-    init(phabricatorUrl: String, apiToken: String) {
+    init(phabricatorUrl: String, apiToken: String, errorHandler: @escaping (Error) -> Void) {
         self.PHABRICATOR_URL = phabricatorUrl
         self.API_TOKEN = apiToken
+        self.errorHandler = errorHandler
     }
 
     func fetchUser(success: @escaping (Response<User>) -> Void) {
@@ -37,24 +39,31 @@ class Phabricator {
         request.httpMethod = "POST"
         request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 10
         return request
     }
     
     func execute<T: Decodable>(request: URLRequest, type: T.Type, success: @escaping (T) -> Void) {
         let task = URLSession.shared.dataTask(with: request) { data, response, err in
+
             // first check for a hard error
             if let error = err {
                 print("Phabricator api error: \(error)")
+                DispatchQueue.main.async() {
+                    self.errorHandler(error)
+                }
             }
             
             // then check the response code
             if let httpResponse = response as? HTTPURLResponse {
                 switch httpResponse.statusCode {
 
-                case 200: // all good!
+                case 200:
                     if let dataString = String(data: data!, encoding: .utf8) {
                         if let response = self.parseJsonResponse(jsonString: dataString, type: type) {
-                            success(response)
+                            DispatchQueue.main.async() {
+                                success(response)
+                            }
                         }
                     }
 

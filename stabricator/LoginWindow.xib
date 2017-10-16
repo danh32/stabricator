@@ -9,6 +9,9 @@
         <customObject id="-2" userLabel="File's Owner" customClass="LoginWindowController" customModule="stabricator" customModuleProvider="target">
             <connections>
                 <outlet property="apiTokenTextField" destination="5V3-NW-tFZ" id="lH3-t3-MTz"/>
+                <outlet property="errorTextField" destination="MGq-d5-7Jc" id="kNr-h7-xBh"/>
+                <outlet property="okButton" destination="9Iz-Cv-Sk8" id="3K2-iB-pxh"/>
+                <outlet property="progressIndicator" destination="7fh-aI-wBo" id="cfN-WC-Jku"/>
                 <outlet property="urlTextField" destination="hPt-a0-KrT" id="05A-ZL-TlS"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
@@ -91,6 +94,19 @@
                             <action selector="onLoadFromFileClicked:" target="-2" id="Bgs-AZ-TLg"/>
                         </connections>
                     </button>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MGq-d5-7Jc">
+                        <rect key="frame" x="20" y="49" width="442" height="49"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="KLa-vZ-AZ0">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <progressIndicator hidden="YES" wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="7fh-aI-wBo">
+                        <rect key="frame" x="429" y="23" width="16" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <connections>

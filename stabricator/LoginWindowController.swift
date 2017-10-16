@@ -12,7 +12,10 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
 
     @IBOutlet weak var urlTextField: NSTextField!
     @IBOutlet weak var apiTokenTextField: NSTextField!
-
+    @IBOutlet weak var errorTextField: NSTextField!
+    @IBOutlet weak var okButton: NSButton!
+    @IBOutlet weak var progressIndicator: NSProgressIndicator!
+    
     let defaults = Defaults()
 
     override func windowDidLoad() {
@@ -43,11 +46,11 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
             let jsonData = try NSString(contentsOfFile: path, encoding: utf8).data(using: utf8)!
             let json = try JSONSerialization.jsonObject(with: jsonData) as! [String: Any]
             let hosts = json["hosts"] as! [String: [String: String]]
-            for (url, object) in hosts {
-                let token = object["token"]!
-                urlTextField.stringValue = url
-                apiTokenTextField.stringValue = token
-            }
+            let (url, object) = hosts.first!
+            let token = object["token"]!
+            urlTextField.stringValue = url
+            apiTokenTextField.stringValue = token
+            onOkClicked(self)
         } catch {
             print(error)
         }
@@ -56,7 +59,19 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
     @IBAction func onOkClicked(_ sender: Any) {
         let url = urlTextField.stringValue
         let apiToken = apiTokenTextField.stringValue
-        let phab = Phabricator(phabricatorUrl: url, apiToken: apiToken)
+        let phab = Phabricator(phabricatorUrl: url, apiToken: apiToken) { error in
+            self.errorTextField.stringValue = "Error logging in with given info. Check your wifi and vpn connection and try again."
+            self.progressIndicator.stopAnimation(nil)
+            self.progressIndicator.isHidden = true
+            self.okButton.isHidden = false
+        }
+
+        // set ui to loading state
+        self.errorTextField.stringValue = ""
+        self.progressIndicator.startAnimation(nil)
+        self.progressIndicator.isHidden = false
+        self.okButton.isHidden = true
+
         phab.fetchUser() { response in
             self.defaults.phabricatorUrl = url
             self.defaults.apiToken = apiToken

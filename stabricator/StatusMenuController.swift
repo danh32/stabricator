@@ -12,9 +12,13 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     let INSERTION_INDEX = 2
 
     @IBOutlet weak var statusMenu: NSMenu!
-
+    @IBOutlet weak var refreshMenuItem: NSMenuItem!
+    
     let loginWindowController = LoginWindowController(windowNibName: NSNib.Name(rawValue: "LoginWindow"))
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    
+    let knife = NSImage(named: NSImage.Name(rawValue: "knife"))!
+    let error = NSImage(named: NSImage.Name(rawValue: "error"))!
 
     let defaults = Defaults()
     var phab: Phabricator? = nil
@@ -34,21 +38,16 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     override init() {
         super.init()
 
-        NSUserNotificationCenter.default.delegate = self
 
-        if (defaults.hasApiToken()) {
-            initPhabricator()
-        } else {
-            // show login window
-            loginWindowController.window?.center()
-            loginWindowController.window?.delegate = self
-            loginWindowController.showWindow(self)
-        }
     }
     
     func windowWillClose(_ notification: Notification) {
-        // login window closing, initialize Phabricator with new values
-        initPhabricator()
+        if (defaults.hasApiToken()) {
+            // login window closing, initialize Phabricator with new values
+            initPhabricator()
+        } else {
+            quitClicked(self)
+        }
     }
     
     private func initPhabricator() {
@@ -57,23 +56,42 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
         let phabUrl = defaults.phabricatorUrl!
         let apiToken = defaults.apiToken!
-        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken)
+        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken) { error in
+            let icon = self.error
+            self.statusItem.image = icon
+            self.refreshMenuItem.image = icon
+            self.refreshMenuItem.toolTip = "Refresh failed. Check your wifi and vpn connection and try again."
+        }
 
         refreshDiffs()
     }
 
     override func awakeFromNib() {
-        let icon = NSImage(named: NSImage.Name(rawValue: "knife"))!
+        let icon = knife
         icon.isTemplate = true
         statusItem.image = icon
         statusItem.menu = statusMenu
+        
+        NSUserNotificationCenter.default.delegate = self
+        
+        if (defaults.hasApiToken()) {
+            initPhabricator()
+        } else {
+            // show login window
+            loginWindowController.window?.center()
+            loginWindowController.window?.delegate = self
+            loginWindowController.showWindow(self)
+        }
         
         refreshDiffs()
     }
 
     private func refreshDiffs() {
+        refreshMenuItem.image = nil
         if let phab = self.phab {
             phab.fetchActiveDiffs() { response in
+                self.statusItem.image = self.knife
+                self.refreshMenuItem.image = nil
                 self.diffs = response.result.data
                 self.refreshUi(diffs: response.result.data)
                 
@@ -88,11 +106,8 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
 
     private func refreshUi(diffs: [Diff]) {
-        // update title on main thread
-        DispatchQueue.main.async(execute: {
-            self.statusItem.title = "\(diffs.count)"
-        })
-        
+        // update title
+        self.statusItem.title = "\(diffs.count)"
         print("Fetched \(diffs.count) active diffs")
         
         // clear out last update's menu items
@@ -108,6 +123,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             let header = NSMenuItem(title: category.title, action: nil, keyEquivalent: "")
             insertMenuItem(menuItem: header)
             
+            // if this category is empty, insert the empty message
             if (diffs.isEmpty) {
                 let empty = NSMenuItem(title: category.emptyMessage, action: nil, keyEquivalent: "")
                 empty.indentationLevel = 1
@@ -115,7 +131,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             }
 
             for diff in diffs {
-                // always add to knew known diffs
+                // always add to new known diffs
                 newKnownDiffIds.insert(diff.phid)
 
                 // add to new diffs if we haven't seen it yet
@@ -123,25 +139,25 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
                     newDiffs.append(diff)
                 }
 
-                let row = NSMenuItem(title: diff.fields.title, action: #selector(launchUrl), keyEquivalent: "")
+                // insert the diff's row
+                let row = NSMenuItem(title: diff.fields.title, action: #selector(onDiffMenuItemClicked), keyEquivalent: "")
                 row.target = self
                 row.representedObject = diff
                 row.image = NSImage(named: NSImage.Name(rawValue: diff.fields.status.value))
-
                 insertMenuItem(menuItem: row)
             }
             
             insertMenuItem(menuItem: NSMenuItem.separator())
         }
 
-        // notify!
+        // notify for new diffs!
         showNotification(diffs: newDiffs)
 
         // setup known diffs for next iteration
         self.knownDiffIds = newKnownDiffIds
     }
     
-    @objc private func launchUrl(_ menuItem: NSMenuItem) {
+    @objc private func onDiffMenuItemClicked(_ menuItem: NSMenuItem) {
         let diff = menuItem.representedObject as! Diff
         let urlString = "https://phabricator.robinhood.com/D\(diff.id)"
         let url = URL(string: urlString)

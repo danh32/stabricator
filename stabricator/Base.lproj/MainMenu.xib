@@ -16,6 +16,7 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <customObject id="xR9-TD-kvA" customClass="StatusMenuController" customModule="stabricator" customModuleProvider="target">
             <connections>
+                <outlet property="refreshMenuItem" destination="Zxh-Jn-P1c" id="c8F-5p-hEd"/>
                 <outlet property="statusMenu" destination="8of-FL-hMO" id="iCI-1G-NPY"/>
             </connections>
         </customObject>
