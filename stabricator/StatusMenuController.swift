@@ -135,7 +135,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
                 newKnownDiffIds.insert(diff.phid)
 
                 // add to new diffs if we haven't seen it yet
-                if !knownDiffIds.contains(diff.phid) {
+                if !diff.isAuthoredBy(userPhid: userPhid!) && !knownDiffIds.contains(diff.phid) {
                     newDiffs.append(diff)
                 }
 
