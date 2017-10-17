@@ -30,7 +30,7 @@ class Phabricator {
 
     func fetchActiveDiffs(success: @escaping (DiffArrayResponse) -> Void) {
         var request = getRequest(url: PHABRICATOR_URL + PATH_DIFFS_SEARCH)
-        request.httpBody = "api.token=\(API_TOKEN)&queryKey=active&attachments[\"reviewers\"]=true".data(using: .utf8)
+        request.httpBody = "api.token=\(API_TOKEN)&queryKey=active&attachments[reviewers]=true".data(using: .utf8)
         execute(request: request, type: DiffArrayResponse.self, success: success)
     }
     
