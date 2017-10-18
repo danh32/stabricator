@@ -24,8 +24,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     var phab: Phabricator? = nil
     var userPhid: String? = nil
     var userImage: String? = nil
-    var diffs: [Diff]? = nil
-    var knownDiffIds: Set<String> = []
+    var actionableDiffIds: Set<String> = []
 
     @IBAction func refreshClicked(_ sender: Any) {
         refreshDiffs()
@@ -33,37 +32,6 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
     @IBAction func quitClicked(_ sender: Any) {
         NSApplication.shared.terminate(self)
-    }
-
-    override init() {
-        super.init()
-
-
-    }
-    
-    func windowWillClose(_ notification: Notification) {
-        if (defaults.hasApiToken()) {
-            // login window closing, initialize Phabricator with new values
-            initPhabricator()
-        } else {
-            quitClicked(self)
-        }
-    }
-    
-    private func initPhabricator() {
-        self.userPhid = defaults.userPhid!
-        self.userImage = defaults.userImage!
-
-        let phabUrl = defaults.phabricatorUrl!
-        let apiToken = defaults.apiToken!
-        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken) { error in
-            let icon = self.error
-            self.statusItem.image = icon
-            self.refreshMenuItem.image = icon
-            self.refreshMenuItem.toolTip = "Refresh failed. Check your wifi and vpn connection and try again."
-        }
-
-        refreshDiffs()
     }
 
     override func awakeFromNib() {
@@ -75,14 +43,40 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
         NSUserNotificationCenter.default.delegate = self
         
         if (defaults.hasApiToken()) {
+            // if we already have an api token, init phabricator immediately
             initPhabricator()
         } else {
-            // show login window
+            // otherwise, show login window
             loginWindowController.window?.center()
             loginWindowController.window?.delegate = self
             loginWindowController.showWindow(self)
         }
+    }
+    
+    func windowWillClose(_ notification: Notification) {
+        if (defaults.hasApiToken()) {
+            // login window closing, initialize phabricator
+            initPhabricator()
+        } else {
+            // user clicked close window, so close program
+            quitClicked(self)
+        }
+    }
+    
+    private func initPhabricator() {
+        self.userPhid = defaults.userPhid!
+        self.userImage = defaults.userImage!
         
+        let phabUrl = defaults.phabricatorUrl!
+        let apiToken = defaults.apiToken!
+        self.phab = Phabricator(phabricatorUrl: phabUrl, apiToken: apiToken) { error in
+            let icon = self.error
+            self.statusItem.image = icon
+            self.refreshMenuItem.image = icon
+            self.refreshMenuItem.toolTip = "Refresh failed. Check your wifi and vpn connection and try again."
+        }
+
+        // fetch diffs now that we've initialized
         refreshDiffs()
     }
 
@@ -92,7 +86,6 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             phab.fetchActiveDiffs() { response in
                 self.statusItem.image = self.knife
                 self.refreshMenuItem.image = nil
-                self.diffs = response.result.data
                 self.refreshUi(diffs: response.result.data)
                 
                 // TODO: have time be configurable
@@ -115,8 +108,8 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             statusMenu.removeItem(at: INSERTION_INDEX)
         }
 
-        var newDiffs: [Diff] = []
-        var newKnownDiffIds: Set<String> = []
+        var diffsToNotify: [Diff] = []
+        var newActionableDiffIds: Set<String> = []
         let sortedDiffs = sortDiffs(userPhid: userPhid!, diffs: diffs)
         for category in categories {
             let diffs = sortedDiffs[category]!
@@ -125,42 +118,55 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             
             // if this category is empty, insert the empty message
             if (diffs.isEmpty) {
-                let empty = NSMenuItem(title: category.emptyMessage, action: nil, keyEquivalent: "")
+                let empty = NSMenuItem(
+                    title: category.emptyMessage,
+                    action: nil,
+                    keyEquivalent: ""
+                )
                 empty.indentationLevel = 1
                 insertMenuItem(menuItem: empty)
             }
 
             for diff in diffs {
-                // always add to new known diffs
-                newKnownDiffIds.insert(diff.phid)
-
-                // add to new diffs if we haven't seen it yet
-                if !diff.isAuthoredBy(userPhid: userPhid!) && !knownDiffIds.contains(diff.phid) {
-                    newDiffs.append(diff)
+                // check to see if we should notify for this diff
+                if diff.isActionable(userPhid: userPhid!) {
+                    // keep track of all actionable diffs for this iteration
+                    newActionableDiffIds.insert(diff.phid)
+                    // we'll send an alert for diffs that are now actionable that weren't last time
+                    if !actionableDiffIds.contains(diff.phid) {
+                        diffsToNotify.append(diff)
+                    }
                 }
 
                 // insert the diff's row
-                let row = NSMenuItem(title: diff.fields.title, action: #selector(onDiffMenuItemClicked), keyEquivalent: "")
-                row.target = self
-                row.representedObject = diff
-                row.image = NSImage(named: NSImage.Name(rawValue: diff.fields.status.value))
-                insertMenuItem(menuItem: row)
+                insertMenuItem(menuItem: createMenuItemFor(diff: diff))
             }
             
             insertMenuItem(menuItem: NSMenuItem.separator())
         }
 
-        // notify for new diffs!
-        showNotification(diffs: newDiffs)
+        // notify for newly actionable diffs!
+        showNotification(diffs: diffsToNotify)
 
-        // setup known diffs for next iteration
-        self.knownDiffIds = newKnownDiffIds
+        // setup known actionable diffs for next iteration
+        self.actionableDiffIds = newActionableDiffIds
+    }
+    
+    private func createMenuItemFor(diff: Diff) -> NSMenuItem {
+        let menuItem = NSMenuItem(
+            title: diff.fields.title,
+            action: #selector(onDiffMenuItemClicked),
+            keyEquivalent: ""
+        )
+        menuItem.target = self
+        menuItem.representedObject = diff
+        menuItem.image = NSImage(named: NSImage.Name(rawValue: diff.fields.status.value))
+        return menuItem
     }
     
     @objc private func onDiffMenuItemClicked(_ menuItem: NSMenuItem) {
         let diff = menuItem.representedObject as! Diff
-        let urlString = "https://phabricator.robinhood.com/D\(diff.id)"
-        let url = URL(string: urlString)
+        let url = phab?.getDiffWebUrl(diff: diff)
         NSWorkspace.shared.open(url!)
     }
     

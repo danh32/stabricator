@@ -26,6 +26,25 @@ struct Diff : Codable {
     let fields: Fields
     let attachments: Attachments?
     
+    func isActionable(userPhid: String) -> Bool {
+        let selfAuthored = isAuthoredBy(userPhid: userPhid)
+        let acceptedByUser = isAcceptedBy(userPhid: userPhid)
+        switch fields.status.value {
+        case Status.NEEDS_REVIEW:
+            return !selfAuthored && !acceptedByUser
+        case Status.NEEDS_REVISION:
+            return selfAuthored
+        case Status.ACCEPTED:
+            return selfAuthored
+        case Status.CHANGES_PLANNED:
+            return selfAuthored
+        case Status.DRAFT:
+            return false
+        default:
+            return false
+        }
+    }
+    
     func isStatus(status: String) -> Bool {
         return fields.status.value == status
     }
