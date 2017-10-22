@@ -29,6 +29,12 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="8qF-hY-Xa4"/>
+                <menuItem title="Preferences" id="Ceg-6e-C2N">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="preferencesClicked:" target="xR9-TD-kvA" id="X9U-Yj-Baa"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Quit" id="cQm-k2-wY8" userLabel="Quit">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>

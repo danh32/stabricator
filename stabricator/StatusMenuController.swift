@@ -15,6 +15,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     @IBOutlet weak var refreshMenuItem: NSMenuItem!
     
     let loginWindowController = LoginWindowController(windowNibName: NSNib.Name(rawValue: "LoginWindow"))
+    let preferencesWindowController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindowController"))
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     
     let knife = NSImage(named: NSImage.Name(rawValue: "knife"))!
@@ -22,12 +23,17 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
     let defaults = Defaults()
     var phab: Phabricator? = nil
-    var userPhid: String? = nil
-    var userImage: String? = nil
+    var user: User? = nil
     var actionableDiffIds: Set<String> = []
 
     @IBAction func refreshClicked(_ sender: Any) {
         refreshDiffs()
+    }
+
+    @IBAction func preferencesClicked(_ sender: Any) {
+        preferencesWindowController.window?.center()
+//        preferencesWindowController.window?.delegate = self
+        preferencesWindowController.showWindow(self)
     }
 
     @IBAction func quitClicked(_ sender: Any) {
@@ -64,8 +70,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
     
     private func initPhabricator() {
-        self.userPhid = defaults.userPhid!
-        self.userImage = defaults.userImage!
+        self.user = defaults.user
         
         let phabUrl = defaults.phabricatorUrl!
         let apiToken = defaults.apiToken!
@@ -88,13 +93,16 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
                 self.refreshMenuItem.image = nil
                 self.refreshUi(diffs: response.result.data)
                 
-                // TODO: have time be configurable
-                let seconds = self.defaults.refreshInterval ?? 60
-                let deadlineTime = DispatchTime.now() + .seconds(seconds)
-                DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
-                    self.refreshDiffs()
-                }
+                self.scheduleRefresh()
             }
+        }
+    }
+    
+    private func scheduleRefresh() {
+        let seconds = self.defaults.refreshInterval ?? 60
+        let deadlineTime = DispatchTime.now() + .seconds(seconds)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
+            self.refreshDiffs()
         }
     }
 
@@ -104,13 +112,13 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
         print("Fetched \(diffs.count) active diffs")
         
         // clear out last update's menu items
-        while (statusMenu.items.count > INSERTION_INDEX + 1) {
+        while (statusMenu.items.count > INSERTION_INDEX + 2) {
             statusMenu.removeItem(at: INSERTION_INDEX)
         }
 
         var diffsToNotify: [Diff] = []
         var newActionableDiffIds: Set<String> = []
-        let sortedDiffs = sortDiffs(userPhid: userPhid!, diffs: diffs)
+        let sortedDiffs = sortDiffs(userPhid: user!.phid, diffs: diffs)
         for category in categories {
             let diffs = sortedDiffs[category]!
             let header = NSMenuItem(title: category.title, action: nil, keyEquivalent: "")
@@ -129,7 +137,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
             for diff in diffs {
                 // check to see if we should notify for this diff
-                if diff.isActionable(userPhid: userPhid!) {
+                if diff.isActionable(userPhid: user!.phid) {
                     // keep track of all actionable diffs for this iteration
                     newActionableDiffIds.insert(diff.phid)
                     // we'll send an alert for diffs that are now actionable that weren't last time
@@ -171,11 +179,11 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
     
     private func insertMenuItem(menuItem: NSMenuItem) {
-        statusMenu.insertItem(menuItem, at: statusMenu.items.count - 1)
+        statusMenu.insertItem(menuItem, at: statusMenu.items.count - 2)
     }
 
     private func showNotification(diffs: [Diff]) -> Void {
-        if (diffs.isEmpty) {
+        if (diffs.isEmpty || !(defaults.notify ?? true)) {
             return
         }
 
@@ -184,7 +192,9 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             notification.title = diff.fields.title
             notification.subtitle = diff.fields.status.name
             notification.identifier = "\(diff.id)"
-            notification.soundName = NSUserNotificationDefaultSoundName
+            if (defaults.playSound ?? true) {
+                notification.soundName = NSUserNotificationDefaultSoundName
+            }
             NSUserNotificationCenter.default.deliver(notification)
         }
     }

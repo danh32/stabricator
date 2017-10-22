@@ -20,6 +20,9 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
 
     override func windowDidLoad() {
         super.windowDidLoad()
+        
+        urlTextField.stringValue = defaults.phabricatorUrl ?? ""
+        apiTokenTextField.stringValue = defaults.apiToken ?? ""
     }
     
     @IBAction func onLoadFromFileClicked(_ sender: Any) {
@@ -75,8 +78,7 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
         phab.fetchUser() { response in
             self.defaults.phabricatorUrl = url
             self.defaults.apiToken = apiToken
-            self.defaults.userPhid = response.result.phid
-            self.defaults.userImage = response.result.image
+            self.defaults.user = response.result
             self.close()
         }
     }

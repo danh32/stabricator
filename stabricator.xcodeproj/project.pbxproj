@@ -18,6 +18,8 @@
 		37CCEE861F8DA4D700F584ED /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37CCEE841F8DA4D700F584ED /* MainMenu.xib */; };
 		37CCEE8F1F8DBA1000F584ED /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CCEE8E1F8DBA1000F584ED /* StatusMenuController.swift */; };
 		37CCEE931F8DCB2F00F584ED /* Phabricator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CCEE921F8DCB2F00F584ED /* Phabricator.swift */; };
+		37F8A8861F9C1A2800928D26 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8A8841F9C1A2800928D26 /* PreferencesWindowController.swift */; };
+		37F8A8871F9C1A2800928D26 /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37F8A8851F9C1A2800928D26 /* PreferencesWindowController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,8 @@
 		37CCEE881F8DA4D700F584ED /* stabricator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = stabricator.entitlements; sourceTree = "<group>"; };
 		37CCEE8E1F8DBA1000F584ED /* StatusMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMenuController.swift; sourceTree = "<group>"; };
 		37CCEE921F8DCB2F00F584ED /* Phabricator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phabricator.swift; sourceTree = "<group>"; };
+		37F8A8841F9C1A2800928D26 /* PreferencesWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowController.swift; sourceTree = "<group>"; };
+		37F8A8851F9C1A2800928D26 /* PreferencesWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PreferencesWindowController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,19 +71,21 @@
 		37CCEE7F1F8DA4D700F584ED /* stabricator */ = {
 			isa = PBXGroup;
 			children = (
-				37CCEE801F8DA4D700F584ED /* AppDelegate.swift */,
-				37CCEE921F8DCB2F00F584ED /* Phabricator.swift */,
-				37CCEE8E1F8DBA1000F584ED /* StatusMenuController.swift */,
-				37CCEE821F8DA4D700F584ED /* Assets.xcassets */,
-				37CCEE841F8DA4D700F584ED /* MainMenu.xib */,
 				37CCEE871F8DA4D700F584ED /* Info.plist */,
 				37CCEE881F8DA4D700F584ED /* stabricator.entitlements */,
+				37CCEE821F8DA4D700F584ED /* Assets.xcassets */,
+				37CCEE801F8DA4D700F584ED /* AppDelegate.swift */,
+				37CCEE8E1F8DBA1000F584ED /* StatusMenuController.swift */,
+				37CCEE841F8DA4D700F584ED /* MainMenu.xib */,
+				37CCEE921F8DCB2F00F584ED /* Phabricator.swift */,
 				3708D5291F928BA100E06D95 /* Models.swift */,
 				3708D52B1F92B05C00E06D95 /* Defaults.swift */,
 				3708D52D1F92B6B700E06D95 /* LoginWindowController.swift */,
 				3708D52E1F92B6B700E06D95 /* LoginWindow.xib */,
 				3708D5311F92D8D300E06D95 /* EditableTextField.swift */,
 				3708D5331F92E60C00E06D95 /* Categories.swift */,
+				37F8A8841F9C1A2800928D26 /* PreferencesWindowController.swift */,
+				37F8A8851F9C1A2800928D26 /* PreferencesWindowController.xib */,
 			);
 			path = stabricator;
 			sourceTree = "<group>";
@@ -150,6 +156,7 @@
 			files = (
 				3708D5301F92B6B700E06D95 /* LoginWindow.xib in Resources */,
 				37CCEE831F8DA4D700F584ED /* Assets.xcassets in Resources */,
+				37F8A8871F9C1A2800928D26 /* PreferencesWindowController.xib in Resources */,
 				37CCEE861F8DA4D700F584ED /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -167,6 +174,7 @@
 				37CCEE811F8DA4D700F584ED /* AppDelegate.swift in Sources */,
 				3708D52C1F92B05C00E06D95 /* Defaults.swift in Sources */,
 				3708D5321F92D8D300E06D95 /* EditableTextField.swift in Sources */,
+				37F8A8861F9C1A2800928D26 /* PreferencesWindowController.swift in Sources */,
 				3708D52A1F928BA100E06D95 /* Models.swift in Sources */,
 				3708D52F1F92B6B700E06D95 /* LoginWindowController.swift in Sources */,
 			);
