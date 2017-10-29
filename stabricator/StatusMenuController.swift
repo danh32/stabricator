@@ -107,8 +107,6 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
 
     private func refreshUi(diffs: [Diff]) {
-        // update title
-        self.statusItem.title = "\(diffs.count)"
         print("Fetched \(diffs.count) active diffs")
         
         // clear out last update's menu items
@@ -158,6 +156,9 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
         // setup known actionable diffs for next iteration
         self.actionableDiffIds = newActionableDiffIds
+        
+        // update title
+        self.statusItem.title = "\(actionableDiffIds.count)"
     }
     
     private func createMenuItemFor(diff: Diff) -> NSMenuItem {
