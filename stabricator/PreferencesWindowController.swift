@@ -17,7 +17,7 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
     @IBOutlet weak var notifyActionable: NSButton!
     @IBOutlet weak var playSound: NSButton!
     
-    let defaults = Defaults()
+    let defaults = Defaults.instance
     let loginWindowController = LoginWindowController(windowNibName: NSNib.Name(rawValue: "LoginWindow"))
     
     override func windowDidLoad() {
@@ -28,16 +28,14 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
         userName.stringValue = user.realName
 
         refreshInterval.delegate = self
-        refreshInterval.integerValue = defaults.refreshInterval ?? 60
+        refreshInterval.integerValue = defaults.refreshInterval
 
-        let autoStart = defaults.autoStart ?? false
-        startOnLaunch.state = autoStart ? .on : .off
+        startOnLaunch.state = defaults.autoStart ? .on : .off
 
-        let notifyEnabled = defaults.notify ?? true
+        let notifyEnabled = defaults.notify
         notifyActionable.state = notifyEnabled ? .on : .off
 
-        let soundOn = defaults.playSound ?? true
-        playSound.state = soundOn ? .on : .off
+        playSound.state = defaults.playSound ? .on : .off
         playSound.isEnabled = notifyEnabled
     }
     
@@ -61,10 +59,13 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
     @IBAction func onStartOnLaunchToggled(_ sender: Any) {
         // todo: set to start on launch??
         // https://stackoverflow.com/questions/35339277/make-swift-cocoa-app-launch-on-startup-on-os-x-10-11
+        defaults.autoStart = startOnLaunch.state == .on
     }
 
     @IBAction func onNotifyToggled(_ sender: Any) {
-        defaults.notify = notifyActionable.state == .on
+        let enabled = notifyActionable.state == .on
+        defaults.notify = enabled
+        playSound.isEnabled = enabled
     }
 
     @IBAction func onPlaySoundToggled(_ sender: Any) {

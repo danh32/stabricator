@@ -16,7 +16,7 @@ class LoginWindowController: NSWindowController, NSTextFieldDelegate {
     @IBOutlet weak var okButton: NSButton!
     @IBOutlet weak var progressIndicator: NSProgressIndicator!
     
-    let defaults = Defaults()
+    let defaults = Defaults.instance
 
     override func windowDidLoad() {
         super.windowDidLoad()

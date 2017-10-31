@@ -9,19 +9,29 @@
 import Foundation
 
 class Defaults {
+    static let instance = Defaults()
+    
+    private let KEY_INITIALIZED = "initialized"
     private let KEY_PHAB_URL = "phabUrl"
     private let KEY_API_TOKEN = "apiToken"
-    // TODO: store user object instead?
     private let KEY_USER = "user"
     private let KEY_REFRESH_INTERVAL = "refreshInterval"
     private let KEY_AUTO_START = "autoStart"
     private let KEY_NOTIFY = "notify"
     private let KEY_PLAY_SOUND = "playSound"
     
-    private let defaults: UserDefaults
+    private let defaults: UserDefaults = UserDefaults.standard
     
-    init() {
-        self.defaults = UserDefaults()
+    private init() {
+        if (!defaults.bool(forKey: KEY_INITIALIZED)) {
+            // initialize any primitives
+            refreshInterval = 60
+            autoStart = false
+            notify = true
+            playSound = true
+
+            defaults.set(true, forKey: KEY_INITIALIZED)
+        }
     }
     
     func hasApiToken() -> Bool {
@@ -70,21 +80,18 @@ class Defaults {
         }
     }
     
-    var refreshInterval: Int? {
+    var refreshInterval: Int {
         get {
-            let value = defaults.integer(forKey: KEY_REFRESH_INTERVAL)
-            return value == 0 ? nil : value
+            return defaults.integer(forKey: KEY_REFRESH_INTERVAL)
         }
         set(value) {
             defaults.set(value, forKey: KEY_REFRESH_INTERVAL)
         }
     }
     
-    var autoStart: Bool? {
+    var autoStart: Bool {
         get {
-            return defaults.object(forKey: KEY_AUTO_START) == nil
-                ? defaults.bool(forKey: KEY_AUTO_START)
-                : nil
+            return defaults.bool(forKey: KEY_AUTO_START)
         }
         set(value) {
             defaults.set(value, forKey: KEY_AUTO_START)
@@ -92,22 +99,18 @@ class Defaults {
     }
 
     
-    var notify: Bool? {
+    var notify: Bool {
         get {
-            return defaults.object(forKey: KEY_NOTIFY) == nil
-                ? defaults.bool(forKey: KEY_NOTIFY)
-                : nil
+            return defaults.bool(forKey: KEY_NOTIFY)
         }
         set(value) {
             defaults.set(value, forKey: KEY_NOTIFY)
         }
     }
     
-    var playSound: Bool? {
+    var playSound: Bool {
         get {
-            return defaults.object(forKey: KEY_PLAY_SOUND) == nil
-                ? defaults.bool(forKey: KEY_PLAY_SOUND)
-                : nil
+            return defaults.bool(forKey: KEY_PLAY_SOUND)
         }
         set(value) {
             defaults.set(value, forKey: KEY_PLAY_SOUND)

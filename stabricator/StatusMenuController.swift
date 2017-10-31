@@ -21,7 +21,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     let knife = NSImage(named: NSImage.Name(rawValue: "knife"))!
     let error = NSImage(named: NSImage.Name(rawValue: "error"))!
 
-    let defaults = Defaults()
+    let defaults = Defaults.instance
     var phab: Phabricator? = nil
     var user: User? = nil
     var actionableDiffIds: Set<String> = []
@@ -99,7 +99,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
     
     private func scheduleRefresh() {
-        let seconds = self.defaults.refreshInterval ?? 60
+        let seconds = self.defaults.refreshInterval
         let deadlineTime = DispatchTime.now() + .seconds(seconds)
         DispatchQueue.main.asyncAfter(deadline: deadlineTime) {
             self.refreshDiffs()
@@ -184,7 +184,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
 
     private func showNotification(diffs: [Diff]) -> Void {
-        if (diffs.isEmpty || !(defaults.notify ?? true)) {
+        if (diffs.isEmpty || !defaults.notify) {
             return
         }
 
@@ -193,7 +193,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
             notification.title = diff.fields.title
             notification.subtitle = diff.fields.status.name
             notification.identifier = "\(diff.id)"
-            if (defaults.playSound ?? true) {
+            if (defaults.playSound) {
                 notification.soundName = NSUserNotificationDefaultSoundName
             }
             NSUserNotificationCenter.default.deliver(notification)
@@ -201,7 +201,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
 
     func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
-        return defaults.notify ?? true
+        return defaults.notify
     }
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
