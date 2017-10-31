@@ -201,8 +201,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
 
     func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
-        // TODO: make configurable
-        return true
+        return defaults.notify ?? true
     }
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
