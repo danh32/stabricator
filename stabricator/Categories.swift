@@ -1,5 +1,5 @@
 //
-//  SortedDiffs.swift
+//  Categories.swift
 //  stabricator
 //
 //  Created by Dan Hill on 10/14/17.
@@ -28,45 +28,46 @@ struct Category : Hashable {
 let categories: [Category] = [
 
     Category(title: "Must Review", emptyMessage: "No revisions are blocked on your review.") { userPhid, diff in
-        diff.isStatus(status: Status.NEEDS_REVIEW) &&
-            !diff.isAuthoredBy(userPhid: userPhid) &&
-            diff.isBlockingReviewer(userPhid: userPhid)
+        diff.isStatus(Status.NEEDS_REVIEW) &&
+            !diff.isAuthoredBy(userPhid) &&
+            diff.isBlockingReviewer(userPhid)
     },
 
     // TODO: get empty message
     Category(title: "Ready to Review", emptyMessage: "No revisions are ready to review.") { userPhid, diff in
-        diff.isStatus(status: Status.NEEDS_REVIEW) &&
-            !diff.isAuthoredBy(userPhid: userPhid) &&
-            !diff.isAcceptedBy(userPhid: userPhid)
+        diff.isStatus(Status.NEEDS_REVIEW) &&
+            !diff.isAuthoredBy(userPhid) &&
+            !diff.isAcceptedBy(userPhid)
     },
     
-    Category(title: "Ready to Land", emptyMessage: "None of your revisions are ready to land.") { userPhid, diff in
-        diff.isStatus(status: Status.ACCEPTED) &&
-            diff.isAuthoredBy(userPhid: userPhid)
+    Category(title: "Ready to Land", emptyMessage: "No revisions are ready to land.") { userPhid, diff in
+        diff.isStatus(Status.ACCEPTED) &&
+            diff.isAuthoredBy(userPhid)
     },
     
     Category(title: "Ready to Update", emptyMessage: "None of your revisions are ready to update.") { userPhid, diff in
-        (diff.isStatus(status: Status.NEEDS_REVISION) || diff.isStatus(status: Status.CHANGES_PLANNED)) &&
-            diff.isAuthoredBy(userPhid: userPhid)
+        diff.isStatus(Status.NEEDS_REVISION, Status.CHANGES_PLANNED) &&
+            diff.isAuthoredBy(userPhid)
     },
 
     Category(title: "Drafts", emptyMessage: "You have no draft revisions.") { _, diff in
-        diff.isStatus(status: Status.DRAFT)
+        diff.isStatus(Status.DRAFT)
     },
     
     Category(title: "Waiting on Review", emptyMessage: "None of your revisions are waiting on review.") { userPhid, diff in
-        diff.isStatus(status: Status.NEEDS_REVIEW) &&
-            diff.isAuthoredBy(userPhid: userPhid)
+        diff.isStatus(Status.NEEDS_REVIEW) &&
+            diff.isAuthoredBy(userPhid)
     },
     
     Category(title: "Waiting on Authors", emptyMessage: "No revisions are waiting on authors.") { userPhid, diff in
-        (diff.isStatus(status: Status.ACCEPTED) || diff.isStatus(status: Status.NEEDS_REVISION)) &&
-            !diff.isAuthoredBy(userPhid: userPhid)
+        diff.isStatus(Status.ACCEPTED, Status.NEEDS_REVISION, Status.CHANGES_PLANNED) &&
+            !diff.isAuthoredBy(userPhid)
     },
 
-    Category(title: "Waiting on Other Reviewers", emptyMessage: "No revisions are waiting on other reviewers.") { userPhid, diff in
-        diff.isStatus(status: Status.NEEDS_REVIEW) && !diff.isAuthoredBy(userPhid: userPhid) &&
-            diff.isAcceptedBy(userPhid: userPhid)
+    Category(title: "Waiting on Other Reviewers", emptyMessage: "No revisions are waiting for other reviewers.") { userPhid, diff in
+        diff.isStatus(Status.NEEDS_REVIEW) &&
+            !diff.isAuthoredBy(userPhid) &&
+            diff.isAcceptedBy(userPhid)
     },
 ]
 

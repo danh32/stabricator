@@ -27,8 +27,8 @@ struct Diff : Codable {
     let attachments: Attachments?
     
     func isActionable(userPhid: String) -> Bool {
-        let selfAuthored = isAuthoredBy(userPhid: userPhid)
-        let acceptedByUser = isAcceptedBy(userPhid: userPhid)
+        let selfAuthored = isAuthoredBy(userPhid)
+        let acceptedByUser = isAcceptedBy(userPhid)
         switch fields.status.value {
         case Status.NEEDS_REVIEW:
             return !selfAuthored && !acceptedByUser
@@ -45,22 +45,27 @@ struct Diff : Codable {
         }
     }
     
-    func isStatus(status: String) -> Bool {
-        return fields.status.value == status
+    func isStatus(_ statuses: String...) -> Bool {
+        for status in statuses {
+            if (status == fields.status.value) {
+                return true
+            }
+        }
+        return false
     }
     
-    func isAuthoredBy(userPhid: String) -> Bool {
+    func isAuthoredBy(_ userPhid: String) -> Bool {
         return fields.authorPHID == userPhid
     }
     
-    func isBlockingReviewer(userPhid: String) -> Bool {
+    func isBlockingReviewer(_ userPhid: String) -> Bool {
         let reviewer = attachments?.reviewers?.reviewers.first() { reviewer in
             reviewer.reviewerPHID == userPhid
         }
         return reviewer?.isBlocking ?? false
     }
     
-    func isAcceptedBy(userPhid: String) -> Bool {
+    func isAcceptedBy(_ userPhid: String) -> Bool {
         let reviewer = attachments?.reviewers?.reviewers.first() { reviewer in
             reviewer.reviewerPHID == userPhid
         }
