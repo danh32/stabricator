@@ -205,10 +205,9 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
     }
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-        let id = notification.identifier!
-        let urlString = "https://phabricator.robinhood.com/D\(id)"
-        let url = URL(string: urlString)
-        NSWorkspace.shared.open(url!)
+        let id = Int(notification.identifier!)!
+        let url = phab!.getDiffWebUrl(diffId: id)
+        NSWorkspace.shared.open(url)
         NSUserNotificationCenter.default.removeDeliveredNotification(notification)
     }
 }

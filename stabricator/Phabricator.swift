@@ -24,8 +24,12 @@ class Phabricator {
     }
     
     func getDiffWebUrl(diff: Diff) -> URL {
+        return getDiffWebUrl(diffId: diff.id)
+    }
+    
+    func getDiffWebUrl(diffId: Int) -> URL {
         return API_URL.deletingLastPathComponent()
-            .appendingPathComponent("D\(diff.id)")
+            .appendingPathComponent("D\(diffId)")
     }
 
     func fetchUser(success: @escaping (Response<User>) -> Void) {
