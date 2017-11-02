@@ -20,9 +20,11 @@
 		37CCEE931F8DCB2F00F584ED /* Phabricator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CCEE921F8DCB2F00F584ED /* Phabricator.swift */; };
 		37F8A8861F9C1A2800928D26 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8A8841F9C1A2800928D26 /* PreferencesWindowController.swift */; };
 		37F8A8871F9C1A2800928D26 /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37F8A8851F9C1A2800928D26 /* PreferencesWindowController.xib */; };
+		5F2465697F3C0AAE39BAAE18 /* Pods_stabricator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F20E5E2763BC764F01CDAAF /* Pods_stabricator.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		227CC0D853097B7CCCEF07E1 /* Pods-stabricator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-stabricator.debug.xcconfig"; path = "Pods/Target Support Files/Pods-stabricator/Pods-stabricator.debug.xcconfig"; sourceTree = "<group>"; };
 		3708D5291F928BA100E06D95 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		3708D52B1F92B05C00E06D95 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		3708D52D1F92B6B700E06D95 /* LoginWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWindowController.swift; sourceTree = "<group>"; };
@@ -39,6 +41,8 @@
 		37CCEE921F8DCB2F00F584ED /* Phabricator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phabricator.swift; sourceTree = "<group>"; };
 		37F8A8841F9C1A2800928D26 /* PreferencesWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowController.swift; sourceTree = "<group>"; };
 		37F8A8851F9C1A2800928D26 /* PreferencesWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PreferencesWindowController.xib; sourceTree = "<group>"; };
+		3AFBE9C0754E226AACB6809E /* Pods-stabricator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-stabricator.release.xcconfig"; path = "Pods/Target Support Files/Pods-stabricator/Pods-stabricator.release.xcconfig"; sourceTree = "<group>"; };
+		7F20E5E2763BC764F01CDAAF /* Pods_stabricator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_stabricator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F2465697F3C0AAE39BAAE18 /* Pods_stabricator.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,6 +62,8 @@
 			children = (
 				37CCEE7F1F8DA4D700F584ED /* stabricator */,
 				37CCEE7E1F8DA4D700F584ED /* Products */,
+				3F34CBB74A225E32B114DF2E /* Pods */,
+				F83897B95B896B685D2B6AB7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,6 +97,23 @@
 			path = stabricator;
 			sourceTree = "<group>";
 		};
+		3F34CBB74A225E32B114DF2E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				227CC0D853097B7CCCEF07E1 /* Pods-stabricator.debug.xcconfig */,
+				3AFBE9C0754E226AACB6809E /* Pods-stabricator.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		F83897B95B896B685D2B6AB7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7F20E5E2763BC764F01CDAAF /* Pods_stabricator.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -97,9 +121,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 37CCEE8B1F8DA4D700F584ED /* Build configuration list for PBXNativeTarget "stabricator" */;
 			buildPhases = (
+				DAE9828BF797C07E0DEC47FD /* [CP] Check Pods Manifest.lock */,
 				37CCEE791F8DA4D700F584ED /* Sources */,
 				37CCEE7A1F8DA4D700F584ED /* Frameworks */,
 				37CCEE7B1F8DA4D700F584ED /* Resources */,
+				370C19F91FAA7B56000A479D /* ShellScript */,
+				071680822BF2CB0094498EFD /* [CP] Embed Pods Frameworks */,
+				709910524E062A8B91F0312C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -162,6 +190,70 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		071680822BF2CB0094498EFD /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-stabricator/Pods-stabricator-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		370C19F91FAA7B56000A479D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" 8fb23ae9f01db1865ce11990e880ae986696390d e22015aef5cd52f2f50ef03d80af73e85ce0237f2002dbbbd74cbb67848cb013";
+		};
+		709910524E062A8B91F0312C /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-stabricator/Pods-stabricator-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DAE9828BF797C07E0DEC47FD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-stabricator-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		37CCEE791F8DA4D700F584ED /* Sources */ = {
@@ -302,11 +394,13 @@
 		};
 		37CCEE8C1F8DA4D700F584ED /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 227CC0D853097B7CCCEF07E1 /* Pods-stabricator.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = stabricator/stabricator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				FABRIC_KEY = "";
 				INFOPLIST_FILE = stabricator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.robinhood.stabricator;
@@ -317,11 +411,13 @@
 		};
 		37CCEE8D1F8DA4D700F584ED /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3AFBE9C0754E226AACB6809E /* Pods-stabricator.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = stabricator/stabricator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				FABRIC_KEY = 8fb23ae9f01db1865ce11990e880ae986696390d;
 				INFOPLIST_FILE = stabricator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.robinhood.stabricator;
