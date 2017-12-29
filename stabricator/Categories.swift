@@ -73,16 +73,15 @@ let categories: [Category] = [
 
 func sortDiffs(userPhid: String, diffs: [Diff]) -> Dictionary<Category, [Diff]> {
     var sorted = [Category: [Diff]]()
+    // initialize dictionary with empty array
+    for category in categories {
+        sorted[category] = [Diff]()
+    }
 
     for diff in diffs {
         var claimed = false
         
         for category in categories {
-            // initialize dictionary with empty array
-            if sorted[category] == nil {
-                sorted[category] = [Diff]()
-            }
-            
             if category.isOfType(userPhid, diff) {
                 sorted[category]!.append(diff)
                 claimed = true
