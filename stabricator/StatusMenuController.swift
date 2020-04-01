@@ -32,7 +32,7 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
 
     @IBAction func preferencesClicked(_ sender: Any) {
         preferencesWindowController.window?.center()
-//        preferencesWindowController.window?.delegate = self
+        preferencesWindowController.window?.delegate = self
         preferencesWindowController.showWindow(self)
     }
 
@@ -118,6 +118,10 @@ class StatusMenuController: NSObject, NSWindowDelegate, NSUserNotificationCenter
         var newActionableDiffIds: Set<String> = []
         let sortedDiffs = sortDiffs(userPhid: user!.phid, diffs: diffs)
         for category in categories {
+            if (!(category.getIsVisible?() ?? true)) {
+                continue
+            }
+
             let diffs = sortedDiffs[category]!
             let header = NSMenuItem(title: category.title, action: nil, keyEquivalent: "")
             insertMenuItem(menuItem: header)
