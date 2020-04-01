@@ -19,6 +19,7 @@ class Defaults {
     private let KEY_AUTO_START = "autoStart"
     private let KEY_NOTIFY = "notify"
     private let KEY_PLAY_SOUND = "playSound"
+    private let KEY_HIDE_WAITING_ON_AUTHORS = "hideWaitingOnAuthors"
     
     private let defaults: UserDefaults = UserDefaults.standard
     
@@ -29,6 +30,7 @@ class Defaults {
             autoStart = false
             notify = true
             playSound = true
+            hideWaitingOnAuthors = true
 
             defaults.set(true, forKey: KEY_INITIALIZED)
         }
@@ -95,6 +97,15 @@ class Defaults {
         }
         set(value) {
             defaults.set(value, forKey: KEY_AUTO_START)
+        }
+    }
+
+    var hideWaitingOnAuthors: Bool {
+        get {
+            return defaults.bool(forKey: KEY_HIDE_WAITING_ON_AUTHORS)
+        }
+        set(value) {
+            defaults.set(value, forKey: KEY_HIDE_WAITING_ON_AUTHORS)
         }
     }
 

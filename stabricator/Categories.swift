@@ -13,6 +13,8 @@ struct Category : Hashable {
     let title: String
     // message to show when the diff list is empty
     let emptyMessage: String
+    // decide if the section is visible
+    var getIsVisible: Optional<() -> Bool> = Optional.none
     // decides if the diff is of this category
     let isOfType: (String, Diff) -> Bool
 
@@ -59,7 +61,7 @@ let categories: [Category] = [
             diff.isAuthoredBy(userPhid)
     },
     
-    Category(title: "Waiting on Authors", emptyMessage: "No revisions are waiting on authors.") { userPhid, diff in
+    Category(title: "Waiting on Authors", emptyMessage: "No revisions are waiting on authors.", getIsVisible: { () -> Bool in !Defaults.instance.hideWaitingOnAuthors }) { userPhid, diff in
         diff.isStatus(Status.ACCEPTED, Status.NEEDS_REVISION, Status.CHANGES_PLANNED) &&
             !diff.isAuthoredBy(userPhid)
     },

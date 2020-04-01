@@ -16,6 +16,7 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
     @IBOutlet weak var startOnLaunch: NSButton!
     @IBOutlet weak var notifyActionable: NSButton!
     @IBOutlet weak var playSound: NSButton!
+    @IBOutlet weak var hideWaitingOnAuthors: NSButton!
     
     let defaults = Defaults.instance
     let loginWindowController = LoginWindowController(windowNibName: NSNib.Name(rawValue: "LoginWindow"))
@@ -29,6 +30,7 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
 
         refreshInterval.delegate = self
         refreshInterval.integerValue = defaults.refreshInterval
+        hideWaitingOnAuthors.state = defaults.hideWaitingOnAuthors ? .on : .off
 
         startOnLaunch.state = defaults.autoStart ? .on : .off
 
@@ -74,5 +76,10 @@ class PreferencesWindowController: NSWindowController, NSWindowDelegate, NSTextF
     
     @IBAction func onOkClicked(_ sender: Any) {
         close()
+    }
+
+    @IBAction func onHideWaitingOnAuthorsToggled(_ sender: Any) {
+        defaults.hideWaitingOnAuthors = hideWaitingOnAuthors.state == .on
+        (self.window?.delegate as! StatusMenuController?)?.refreshClicked(self)
     }
 }
